@@ -1,4 +1,4 @@
-from flask_restful import reqparse, abort, Api, Resource
+from flask_restful import reqparse, abort, Resource
 from flask import jsonify
 from .users import User
 from . import db_session
@@ -11,8 +11,15 @@ def abort_if_user_not_found(user_id):
         abort(404, message=f"User {user_id} not found")
 
 
+def abort_if_user_found(user_id):
+    session = db_session.create_session()
+    user = session.query(User).get(user_id)
+    if user:
+        abort(404, message=f"User {user_id} already exists")
+
+
 parser = reqparse.RequestParser()
-parser.add_argument('id', required=True)
+parser.add_argument('id', required=True, type=int)
 parser.add_argument('surname', required=True)
 parser.add_argument('name', required=True)
 parser.add_argument('age', required=True, type=int)
@@ -72,6 +79,7 @@ class UserListResource(Resource):
     def post(self):
         args = parser.parse_args()
         session = db_session.create_session()
+        abort_if_user_found(args['id'])
         user = User(
             id=args['id'],
             surname=args['surname'],

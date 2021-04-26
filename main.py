@@ -1,4 +1,5 @@
 from data.users_resource import UserListResource, UserResource
+from data.jobs_resource import JobListResource, JobResource
 from flask import Flask, render_template, redirect
 from flask import request, abort, make_response
 from flask import jsonify
@@ -10,14 +11,7 @@ from forms.login import LoginForm
 from forms.job import JobForm
 from flask_login import LoginManager, login_user, login_required
 from flask_login import logout_user, current_user
-from flask_restful import reqparse, abort, Api, Resource
-
-
-def abort_if_job_not_found(job_id):
-    session = db_session.create_session()
-    job = session.query(Job).get(job_id)
-    if not job:
-        abort(404, message=f"Job {job_id} not found")
+from flask_restful import abort, Api
 
 
 app = Flask(__name__)
@@ -178,6 +172,8 @@ def main():
     app.register_blueprint(job_api.blueprint)
     api.add_resource(UserListResource, '/api/v2/users')
     api.add_resource(UserResource, '/api/v2/users/<int:user_id>')
+    api.add_resource(JobListResource, '/api/v2/jobs')
+    api.add_resource(JobResource, '/api/v2/jobs/<int:job_id>')
     app.run(port=8080, host='127.0.0.1')
 
 
